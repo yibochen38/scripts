@@ -9,22 +9,23 @@
 # 定义内置屏幕接口和外接屏幕接口
 INNER_PORT=$(xrandr | grep eDP | grep -w 'connected' | awk '{print $1}')
 OUTPORT1=HDMI
-OUTPORT2=DP-2
+OUTPORT2=DP
+
 
 two() {
     # 查找已连接、未连接的外接接口
-    OUTPORT_CONNECTED=$(xrandr | grep $OUTPORT1 | grep -w 'connected' | awk '{print $1}')
+    OUTPORT_CONNECTED=$(xrandr | grep -E "($OUTPORT1|$OUTPORT2)" | grep -wv $INNER_PORT | grep -w 'connected' | awk '{print $1}')
     OUTPORT_DISCONNECTED=$(xrandr | grep -v $INNER_PORT | grep -w 'disconnected' | awk '{print $1}')
     [ ! "$OUTPORT_CONNECTED" ] && one && return # 如果没有外接屏幕则直接调用one函数
     xrandr --output $INNER_PORT --auto \
-           --output $OUTPORT_CONNECTED --right-of $INNER_PORT --auto --primary
+           --output $OUTPORT_CONNECTED --left-of $INNER_PORT --auto --primary
     feh --randomize --bg-fill ~/Pictures/wallpaper/*.png
 }
 one() {
    # xrandr --output $INNER_PORT --mode 1920x1080 --pos 0x0 --scale 1x1 --primary \
     xrandr --auto \
            --output $OUTPORT1 --off \
-           --output $OUTPORT2 --off
+           
     feh --randomize --bg-fill ~/Pictures/wallpaper/*.png
 }
 check() {
